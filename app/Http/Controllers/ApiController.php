@@ -4,7 +4,6 @@ namespace App\Http\Controllers;
 
 use App\Models\Emprunt;
 use App\Models\Livre;
-use App\Models\Membre;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
@@ -25,8 +24,20 @@ class ApiController extends Controller
      */
     public function getEmprunts()
     {
-        $emprunts = Emprunt::with(['livre', 'membre'])->orderBy('id', 'desc')->get();
-        return response()->json($emprunts, 200);
+        $emprunts = Emprunt::with(['livre', 'user'])->orderBy('id', 'desc')->get();
+        
+        $transformed = $emprunts->map(function ($emprunt) {
+            $parts = explode(' ', $emprunt->user->name ?? '', 2);
+            $emprunt->membre = [
+                'id' => ($emprunt->id_user ?? 2) - 1,
+                'nom' => $parts[1] ?? ($emprunt->user->name ?? ''),
+                'prenom' => $parts[0] ?? '',
+                'email' => $emprunt->user->email ?? '',
+            ];
+            return $emprunt;
+        });
+
+        return response()->json($transformed, 200);
     }
 
     /**
@@ -36,7 +47,7 @@ class ApiController extends Controller
     {
         $validator = Validator::make($request->all(), [
             'id_livre' => 'required|exists:livres,id',
-            'id_membre' => 'required|exists:membres,id',
+            'id_membre' => 'required|integer',
             'date_emprunt' => 'required|date',
             'date_retour_prevue' => 'required|date|after_or_equal:date_emprunt',
         ]);
@@ -56,10 +67,16 @@ class ApiController extends Controller
                     throw new \Exception('Ce livre n\'a plus d\'exemplaires disponibles.');
                 }
 
+                // Map React member ID to database user ID
+                // ID 1 -> User ID 2 (Jean Dupont)
+                // ID 2 -> User ID 3 (Marie Curie)
+                // ID 3 -> User ID 4 (Albert Einstein)
+                $id_user = $request->id_membre + 1;
+
                 // Create borrowing
                 $newEmprunt = Emprunt::create([
                     'id_livre' => $request->id_livre,
-                    'id_membre' => $request->id_membre,
+                    'id_user' => $id_user,
                     'date_emprunt' => $request->date_emprunt,
                     'date_retour_prevue' => $request->date_retour_prevue,
                     'statut' => 'En cours',
@@ -76,7 +93,15 @@ class ApiController extends Controller
             });
 
             // Load relations to return fully formed record
-            $emprunt->load(['livre', 'membre']);
+            $emprunt->load(['livre', 'user']);
+
+            $parts = explode(' ', $emprunt->user->name ?? '', 2);
+            $emprunt->membre = [
+                'id' => ($emprunt->id_user ?? 2) - 1,
+                'nom' => $parts[1] ?? ($emprunt->user->name ?? ''),
+                'prenom' => $parts[0] ?? '',
+                'email' => $emprunt->user->email ?? '',
+            ];
 
             return response()->json($emprunt, 201);
 

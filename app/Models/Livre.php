@@ -15,6 +15,8 @@ class Livre extends Model
         'titre',
         'isbn',
         'nombre_exemplaires',
+        'duration_borrow',
+        'image',
         'statut',
     ];
 

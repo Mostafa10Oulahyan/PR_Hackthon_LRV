@@ -4,7 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Emprunt;
 use App\Models\Livre;
-use App\Models\Membre;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
@@ -15,7 +15,7 @@ class EmpruntController extends Controller
      */
     public function index()
     {
-        $emprunts = Emprunt::with(['livre', 'membre'])->orderBy('id', 'desc')->get();
+        $emprunts = Emprunt::with(['livre', 'user'])->orderBy('id', 'desc')->get();
         return view('listeEmprunts', compact('emprunts'));
     }
 
@@ -25,7 +25,7 @@ class EmpruntController extends Controller
     public function create()
     {
         $livres = Livre::where('nombre_exemplaires', '>', 0)->get();
-        $membres = Membre::all();
+        $membres = User::where('role', 'membre')->get();
         return view('ajouterEmprunt', compact('livres', 'membres'));
     }
 
@@ -36,7 +36,7 @@ class EmpruntController extends Controller
     {
         $request->validate([
             'id_livre' => 'required|exists:livres,id',
-            'id_membre' => 'required|exists:membres,id',
+            'id_user' => 'required|exists:users,id',
             'date_emprunt' => 'required|date',
             'date_retour_prevue' => 'required|date|after_or_equal:date_emprunt',
         ]);
@@ -54,7 +54,7 @@ class EmpruntController extends Controller
             // Create the borrowing
             Emprunt::create([
                 'id_livre' => $request->id_livre,
-                'id_membre' => $request->id_membre,
+                'id_user' => $request->id_user,
                 'date_emprunt' => $request->date_emprunt,
                 'date_retour_prevue' => $request->date_retour_prevue,
                 'statut' => 'En cours',

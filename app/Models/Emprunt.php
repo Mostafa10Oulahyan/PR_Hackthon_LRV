@@ -13,7 +13,7 @@ class Emprunt extends Model
 
     protected $fillable = [
         'id_livre',
-        'id_membre',
+        'id_user',
         'date_emprunt',
         'date_retour_prevue',
         'statut',
@@ -24,8 +24,8 @@ class Emprunt extends Model
         return $this->belongsTo(Livre::class, 'id_livre');
     }
 
-    public function membre()
+    public function user()
     {
-        return $this->belongsTo(Membre::class, 'id_membre');
+        return $this->belongsTo(User::class, 'id_user');
     }
 }

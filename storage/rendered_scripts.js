@@ -1,229 +1,17 @@
-<!DOCTYPE html>
-<html lang="fr">
-
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>@yield('title', 'BiblioTech Cloud')</title>
-    <!-- Google Fonts: Inter & Outfit -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link
-        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700;800&display=swap"
-        rel="stylesheet">
-
-    <!-- Tailwind CSS CDN -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    fontFamily: {
-                        sans: ['Inter', 'sans-serif'],
-                        outfit: ['Outfit', 'sans-serif'],
-                    }
-                }
-            }
-        }
-    </script>
-
-    <style>
-        body {
-            background-color: #080c14;
-            background-image:
-                radial-gradient(at 0% 0%, rgba(99, 102, 241, 0.15) 0px, transparent 50%),
-                radial-gradient(at 100% 100%, rgba(20, 184, 166, 0.12) 0px, transparent 50%);
-        }
-
-        .glass-card {
-            background: rgba(13, 20, 35, 0.7);
-            backdrop-filter: blur(16px);
-            -webkit-backdrop-filter: blur(16px);
-            border: 1px solid rgba(255, 255, 255, 0.08);
-        }
-    </style>
-</head>
-
-<body class="font-sans text-gray-100 min-h-screen flex flex-col overflow-x-hidden">
-
-    <!-- Header / Glassmorphic Navbar -->
-    <header class="sticky top-0 z-50 bg-[#080c14]/75 backdrop-blur-md border-b border-white/10">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="flex items-center justify-between h-16 sm:h-20 flex-wrap sm:flex-nowrap py-3 gap-4">
-
-                <!-- Logo & Brand -->
-                <a href="{{ url('/') }}" class="flex items-center gap-3 group cursor-pointer">
-                    <img src="{{ asset('images/Logo.png') }}" alt="Logo"
-                        class="h-10 w-auto filter drop-shadow-[0_0_8px_rgba(99,102,241,0.4)] transition-transform duration-300 group-hover:rotate-[-5deg] group-hover:scale-105">
-
-                </a>
-
-                <!-- Navigation Links -->
-                <nav class="flex items-center gap-1 sm:gap-2 flex-wrap justify-center">
-                    @auth
-                        @php
-                            $adminUser = \App\Models\User::where('role', 'admin')->first() ?? \App\Models\User::find(1);
-                            $adminId = $adminUser ? $adminUser->id : 1;
-                        @endphp
-                        @if(auth()->user()->isAdmin())
-                            <a href="{{ route('admin.dashboard') }}"
-                                class="px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 cursor-pointer {{ Route::is('admin.dashboard') ? 'bg-white/10 text-white' : 'text-gray-400 hover:text-white hover:bg-white/5' }}">Dashboard</a>
-                            <a href="{{ route('admin.emprunts') }}"
-                                class="px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 cursor-pointer {{ Route::is('admin.emprunts') ? 'bg-white/10 text-white' : 'text-gray-400 hover:text-white hover:bg-white/5' }}">Gérer
-                                Emprunts</a>
-                            <a href="{{ route('admin.livres.create') }}"
-                                class="px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 cursor-pointer {{ Route::is('admin.livres.create') ? 'bg-white/10 text-white' : 'text-gray-400 hover:text-white hover:bg-white/5' }}">Ajouter
-                                Livre</a>
-                            <a href="{{ route('admin.chat') }}"
-                                class="px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 cursor-pointer flex items-center gap-1.5 {{ Route::is('admin.chat') ? 'bg-white/10 text-white' : 'text-gray-400 hover:text-white hover:bg-white/5' }}">
-                                <span>Support Chat</span>
-                                <span id="nav-unread-badge"
-                                    class="hidden px-1.5 py-0.5 text-[10px] font-bold bg-red-500 text-white rounded-full min-w-[18px] text-center shadow-md shadow-red-500/20">0</span>
-                            </a>
-                        @else
-                            <a href="{{ route('membre.dashboard') }}"
-                                class="px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 cursor-pointer {{ Route::is('membre.dashboard') ? 'bg-white/10 text-white' : 'text-gray-400 hover:text-white hover:bg-white/5' }}">Dashboard</a>
-                            <a href="{{ route('membre.livres') }}"
-                                class="px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 cursor-pointer {{ Route::is('membre.livres') ? 'bg-white/10 text-white' : 'text-gray-400 hover:text-white hover:bg-white/5' }}">Livres</a>
-                            <a href="{{ route('membre.mesEmprunts') }}"
-                                class="px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 cursor-pointer {{ Route::is('membre.mesEmprunts') ? 'bg-white/10 text-white' : 'text-gray-400 hover:text-white hover:bg-white/5' }}">Mes
-                                Emprunts</a>
-                            <a href="{{ route('membre.profil') }}"
-                                class="px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 cursor-pointer {{ Route::is('membre.profil') ? 'bg-white/10 text-white' : 'text-gray-400 hover:text-white hover:bg-white/5' }}">Mon
-                                Profil</a>
-                            <a href="{{ route('membre.chat') }}"
-                                class="px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 cursor-pointer flex items-center gap-1.5 {{ Route::is('membre.chat') ? 'bg-white/10 text-white' : 'text-gray-400 hover:text-white hover:bg-white/5' }}">
-                                <span>Support Chat</span>
-                                <span id="nav-unread-badge"
-                                    class="hidden px-1.5 py-0.5 text-[10px] font-bold bg-red-500 text-white rounded-full min-w-[18px] text-center shadow-md shadow-red-500/20">0</span>
-                            </a>
-                        @endif
-
-                        <div class="flex items-center gap-3 border-l border-white/10 pl-3 ml-1 sm:ml-2">
-                            <!-- Notification Bell -->
-                            <div class="relative" id="notification-wrapper">
-                                <button onclick="toggleNotifications()"
-                                    class="relative p-2 rounded-lg text-gray-400 hover:text-white hover:bg-white/5 transition-all duration-200 cursor-pointer"
-                                    title="Notifications">
-                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2"
-                                        viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round"
-                                            d="M14.857 17.082a23.848 23.848 0 005.454-1.31A8.967 8.967 0 0118 9.75v-.7V9A6 6 0 006 9v.75a8.967 8.967 0 01-2.312 6.022c1.733.64 3.56 1.085 5.455 1.31m5.714 0a24.255 24.255 0 01-5.714 0m5.714 0a3 3 0 11-5.714 0">
-                                        </path>
-                                    </svg>
-                                    <span id="notif-count-badge"
-                                        class="hidden absolute -top-0.5 -right-0.5 flex h-4 w-4 items-center justify-center rounded-full bg-red-500 text-[9px] font-bold text-white shadow-md shadow-red-500/30 animate-pulse">0</span>
-                                </button>
-
-                                <!-- Notification Dropdown -->
-                                <div id="notification-dropdown"
-                                    class="hidden absolute right-0 top-full mt-2 w-[340px] sm:w-[380px] max-h-[420px] glass-card rounded-2xl shadow-2xl border border-white/10 z-[999] overflow-hidden">
-                                    <div
-                                        class="absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-indigo-500 to-teal-500">
-                                    </div>
-                                    <div class="px-4 py-3 border-b border-white/5 flex items-center justify-between">
-                                        <h4 class="font-outfit font-bold text-sm text-white flex items-center gap-2">
-                                            <svg class="w-4 h-4 text-indigo-400" fill="none" stroke="currentColor"
-                                                stroke-width="2" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round"
-                                                    d="M14.857 17.082a23.848 23.848 0 005.454-1.31A8.967 8.967 0 0118 9.75v-.7V9A6 6 0 006 9v.75a8.967 8.967 0 01-2.312 6.022c1.733.64 3.56 1.085 5.455 1.31m5.714 0a24.255 24.255 0 01-5.714 0m5.714 0a3 3 0 11-5.714 0">
-                                                </path>
-                                            </svg>
-                                            Notifications
-                                        </h4>
-                                        <button onclick="markAllNotificationsRead()"
-                                            class="text-[10px] font-semibold text-indigo-400 hover:text-indigo-300 transition cursor-pointer">Tout
-                                            lire</button>
-                                    </div>
-                                    <div id="notification-list" class="overflow-y-auto max-h-[340px] p-2 space-y-1">
-                                        <div class="text-center text-gray-500 text-xs py-6">Chargement...</div>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <img src="{{ asset(auth()->user()->image_profile ?? 'images/user_avatar.png') }}" alt="Avatar"
-                                class="w-8 h-8 rounded-full border border-white/20 flex-shrink-0 object-cover shadow-sm">
-                            <span
-                                class="hidden sm:inline text-xs font-semibold text-gray-300">{{ auth()->user()->name }}</span>
-                            <span
-                                class="text-[10px] font-bold tracking-wider px-2 py-0.5 rounded uppercase border {{ auth()->user()->isAdmin() ? 'bg-red-500/10 text-red-400 border-red-500/20' : 'bg-teal-500/10 text-teal-400 border-teal-500/20' }}">
-                                {{ auth()->user()->role }}
-                            </span>
-                            <form action="{{ route('logout') }}" method="POST" class="inline">
-                                @csrf
-                                <button type="submit"
-                                    class="flex items-center gap-1.5 text-xs sm:text-sm font-medium text-red-400 hover:text-red-300 px-3 py-2 rounded-lg hover:bg-red-500/10 transition-all duration-200 cursor-pointer">
-                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2"
-                                        viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round"
-                                            d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1">
-                                        </path>
-                                    </svg>
-                                    Quitter
-                                </button>
-                            </form>
-                        </div>
-                    @else
-                        <a href="{{ route('login') }}"
-                            class="px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 cursor-pointer {{ Route::is('login') ? 'bg-white/10 text-white' : 'text-gray-400 hover:text-white hover:bg-white/5' }}">Connexion</a>
-                        <a href="{{ route('register') }}"
-                            class="ml-2 inline-flex items-center justify-center px-4 py-2 rounded-lg text-sm font-semibold text-white bg-gradient-to-r from-indigo-500 to-indigo-600 hover:from-indigo-600 hover:to-indigo-700 shadow-md hover:shadow-lg shadow-indigo-500/20 transform hover:-translate-y-0.5 transition-all duration-200 cursor-pointer">Inscription</a>
-                    @endauth
-                </nav>
-            </div>
-        </div>
-    </header>
-
-    <!-- Main Content Area -->
-    <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
-        @if(session('success'))
-            <div
-                class="alert flex items-center bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 px-4 py-3 rounded-xl mb-6 font-medium text-sm">
-                <svg class="w-5 h-5 mr-2.5 flex-shrink-0" fill="none" stroke="currentColor" stroke-width="2"
-                    viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z">
-                    </path>
-                </svg>
-                {{ session('success') }}
-            </div>
-        @endif
-
-        @if($errors->any())
-            <div
-                class="alert flex items-start bg-red-500/10 border border-red-500/20 text-red-400 px-4 py-3 rounded-xl mb-6 font-medium text-sm">
-                <svg class="w-5 h-5 mr-2.5 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" stroke-width="2"
-                    viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round"
-                        d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z">
-                    </path>
-                </svg>
-                <div class="flex-1">
-                    @foreach($errors->all() as $error)
-                        <div>{{ $error }}</div>
-                    @endforeach
-                </div>
-            </div>
-        @endif
-
-        @yield('content')
-    </main>
-
-    @auth
-        <!-- Global JS Config & Real-Time Notifications -->
-        <script src="https://js.pusher.com/8.0/pusher.min.js"></script>
-        <script>
-            const authId = {{ auth()->id() }};
-            const isAdmin = {{ auth()->user()->isAdmin() ? 'true' : 'false' }};
-            const adminId = {{ $adminId }};
+--- SCRIPT BLOCK 3 ---
+<script>
+            const authId = 6;
+            const isAdmin = false;
+            const adminId = 5;
             let globalPusher = null;
             let notifDropdownOpen = false;
 
             // Initialize global Pusher immediately so page-specific scripts can reuse it in DOMContentLoaded
             try {
-                const isProductionPusher = '{{ env("BROADCAST_CONNECTION") }}' === 'pusher';
-                const pusherKey = '{{ env("PUSHER_APP_KEY", "bibliotech-app-key") }}';
+                const isProductionPusher = 'pusher' === 'pusher';
+                const pusherKey = 'adfb91ce187216651045';
                 const config = isProductionPusher ? {
-                    cluster: '{{ env("PUSHER_APP_CLUSTER", "eu") }}',
+                    cluster: 'eu',
                     forceTLS: true
                 } : {
                     wsHost: window.location.hostname,
@@ -367,7 +155,7 @@
                 try {
                     await fetch(`/notifications/${id}/mark-read`, {
                         method: 'POST',
-                        headers: { 'X-CSRF-TOKEN': '{{ csrf_token() }}' }
+                        headers: { 'X-CSRF-TOKEN': 'qIswqqkIDfbHg9guMvKruzxXN1oMF2RPeBAsuCgC' }
                     });
                     if (el) el.classList.add('opacity-60');
                     updateNotifBadge();
@@ -378,7 +166,7 @@
                 try {
                     await fetch('/notifications/mark-all-read', {
                         method: 'POST',
-                        headers: { 'X-CSRF-TOKEN': '{{ csrf_token() }}' }
+                        headers: { 'X-CSRF-TOKEN': 'qIswqqkIDfbHg9guMvKruzxXN1oMF2RPeBAsuCgC' }
                     });
                     updateNotifBadge();
                     fetchNotifications();
@@ -458,7 +246,7 @@
                                     appendWidgetMessage(data);
                                     fetch(`/chat/read/${adminId}`, {
                                         method: 'POST',
-                                        headers: { 'X-CSRF-TOKEN': '{{ csrf_token() }}' }
+                                        headers: { 'X-CSRF-TOKEN': 'qIswqqkIDfbHg9guMvKruzxXN1oMF2RPeBAsuCgC' }
                                     });
                                     return;
                                 }
@@ -490,84 +278,8 @@
             });
         </script>
 
-        @if(auth()->user()->isMembre())
-            <!-- Floating Support Chat Widget for Members -->
-            <div class="fixed bottom-6 right-6 z-50 flex flex-col items-end">
-
-                <!-- Chat Window (hidden by default) -->
-                <div id="chat-widget-window"
-                    class="hidden w-[330px] sm:w-[360px] h-[400px] rounded-2xl glass-card flex flex-col shadow-2xl overflow-hidden mb-4 border border-white/10 relative transition-all duration-300">
-                    <div class="absolute top-0 left-0 right-0 h-[3px] bg-gradient-to-r from-indigo-500 to-teal-500"></div>
-
-                    <!-- Chat Header -->
-                    <div class="px-5 py-3.5 border-b border-white/5 flex items-center justify-between bg-white/[0.01]">
-                        <div class="flex items-center gap-2.5">
-                            <div
-                                class="w-8 h-8 rounded-full bg-indigo-500/10 text-indigo-400 flex items-center justify-center font-bold text-xs border border-indigo-500/25">
-                                AI
-                            </div>
-                            <div>
-                                <h4 class="font-outfit font-bold text-xs text-white">Assistant BiblioTech</h4>
-                                <div class="text-[9px] text-teal-400 flex items-center gap-1 mt-0.5">
-                                    <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
-                                    En ligne (Chatbot)
-                                </div>
-                            </div>
-                        </div>
-                        <button onclick="toggleChatWidget()"
-                            class="text-gray-400 hover:text-white transition-colors duration-150 cursor-pointer">
-                            <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5"></path>
-                            </svg>
-                        </button>
-                    </div>
-
-                    <!-- Admin Unread Message Notification Banner -->
-                    <div id="widget-admin-notif-banner" class="hidden px-4 py-2 bg-indigo-500/10 border-b border-white/5 flex items-center justify-between text-[10px] text-gray-300">
-                        <span class="flex items-center gap-1.5">
-                            <span class="w-2 h-2 rounded-full bg-red-500 animate-pulse"></span>
-                            Vous avez des messages de l'administrateur.
-                        </span>
-                        <a href="{{ route('membre.chat') }}" class="font-bold text-indigo-400 hover:underline">Ouvrir le support</a>
-                    </div>
-
-                    <!-- Messages Container -->
-                    <div id="widget-messages-container" class="flex-1 overflow-y-auto p-4 space-y-3 bg-[#080c14]/20 text-xs animate-fade-in">
-                    </div>
-
-                    <!-- Input Form -->
-                    <form id="widget-chat-form" onsubmit="handleWidgetSendMessage(event)"
-                        class="p-3 border-t border-white/5 bg-white/[0.01] flex gap-2 items-center">
-                        <input type="text" id="widget-message-input" placeholder="Posez une question à l'assistant..."
-                            class="flex-1 px-3 py-2 rounded-xl bg-white/5 border border-white/10 text-white placeholder-gray-500 focus:outline-none focus:border-indigo-500 transition duration-150 text-xs">
-                        <button type="submit"
-                            class="p-2 rounded-xl text-white bg-gradient-to-r from-indigo-500 to-indigo-600 hover:from-indigo-600 hover:to-indigo-700 shadow shadow-indigo-600/10 flex items-center justify-center transition-all duration-150 cursor-pointer">
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round"
-                                    d="M6 12L3.269 3.126A59.768 59.768 0 0121.485 12 59.77 59.77 0 013.27 20.876L5.999 12zm0 0h7.5">
-                                </path>
-                            </svg>
-                        </button>
-                    </form>
-                </div>
-
-                <!-- Floating Trigger Button -->
-                <button onclick="toggleChatWidget()"
-                    class="w-14 h-14 rounded-full bg-gradient-to-r from-indigo-500 to-teal-500 text-white flex items-center justify-center shadow-lg hover:shadow-xl hover:shadow-indigo-500/25 hover:scale-105 transform transition-all duration-200 cursor-pointer group relative">
-                    <svg class="w-6 h-6 group-hover:rotate-12 transition-transform duration-200" fill="none"
-                        stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round"
-                            d="M7.5 8.25h9m-9 3H12m-9.75 1.51c0 1.6 1.123 2.994 2.707 3.227 1.129.166 2.27.293 3.423.379.35.026.67.21.865.501L12 21l2.755-4.133a1.14 1.14 0 01.865-.501 48.172 48.172 0 003.423-.379c1.584-.233 2.707-1.626 2.707-3.228V6.741c0-1.602-1.123-2.995-2.707-3.228A48.394 48.394 0 0012 3c-2.392 0-4.744.175-7.043.513C3.373 3.746 2.25 5.14 2.25 6.741v6.018z">
-                        </path>
-                    </svg>
-                    <!-- Floating Unread Badge -->
-                    <span id="widget-unread-badge"
-                        class="hidden absolute -top-1 -right-1 flex h-5 w-5 items-center justify-center rounded-full bg-red-500 text-[10px] font-bold text-white shadow-md shadow-red-500/30">0</span>
-                </button>
-            </div>
-
-            <!-- Scripts for Chat Widget -->
-            <script>
+--- SCRIPT BLOCK 4 ---
+<script>
                 let widgetOpen = false;
                 let botHistory = [];
 
@@ -789,7 +501,7 @@
                                 method: 'POST',
                                 headers: {
                                     'Content-Type': 'application/json',
-                                    'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                                    'X-CSRF-TOKEN': 'qIswqqkIDfbHg9guMvKruzxXN1oMF2RPeBAsuCgC'
                                 },
                                 body: JSON.stringify({
                                     receiver_id: adminId,
@@ -836,8 +548,4 @@
                     return escaped;
                 }
             </script>
-        @endif
-    @endauth
-</body>
 
-</html>

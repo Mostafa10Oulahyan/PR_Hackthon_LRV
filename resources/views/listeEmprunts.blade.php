@@ -3,144 +3,61 @@
 @section('title', 'Liste des Emprunts - BiblioTech Cloud')
 
 @section('content')
-<style>
-    .page-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-bottom: 2rem;
-    }
-
-    .page-title {
-        font-size: 2.25rem;
-        font-weight: 800;
-        letter-spacing: -0.5px;
-        background: linear-gradient(to right, var(--text-main), var(--text-muted));
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
-    }
-
-    .table-container {
-        width: 100%;
-        overflow-x: auto;
-    }
-
-    table {
-        width: 100%;
-        border-collapse: collapse;
-        text-align: left;
-    }
-
-    th {
-        padding: 1.25rem 1rem;
-        color: var(--text-muted);
-        font-weight: 600;
-        font-size: 0.85rem;
-        text-transform: uppercase;
-        letter-spacing: 1px;
-        border-bottom: 1px solid var(--card-border);
-    }
-
-    td {
-        padding: 1.25rem 1rem;
-        font-size: 0.95rem;
-        border-bottom: 1px solid rgba(255, 255, 255, 0.03);
-        color: var(--text-main);
-    }
-
-    tr:hover td {
-        background: rgba(255, 255, 255, 0.02);
-    }
-
-    .badge {
-        display: inline-flex;
-        align-items: center;
-        padding: 0.35rem 0.85rem;
-        border-radius: 9999px;
-        font-size: 0.8rem;
-        font-weight: 600;
-        text-transform: uppercase;
-        letter-spacing: 0.5px;
-    }
-
-    .badge-pending {
-        background-color: var(--warning-bg);
-        color: var(--warning);
-        border: 1px solid rgba(245, 158, 11, 0.2);
-    }
-
-    .badge-returned {
-        background-color: var(--success-bg);
-        color: var(--success);
-        border: 1px solid rgba(16, 185, 129, 0.2);
-    }
-
-    .empty-state {
-        text-align: center;
-        padding: 4rem 2rem;
-        color: var(--text-muted);
-    }
-
-    .empty-icon {
-        font-size: 3rem;
-        margin-bottom: 1.5rem;
-        color: rgba(99, 102, 241, 0.4);
-    }
-</style>
-
-<div class="page-header">
+<div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8">
     <div>
-        <h1 class="page-title">Tableau de Bord des Emprunts</h1>
-        <p style="color: var(--text-muted); margin-top: 0.25rem;">Gérer les emprunts et les retours de livres</p>
+        <h1 class="text-3xl font-outfit font-extrabold bg-gradient-to-r from-white to-gray-400 bg-clip-text text-transparent">Tableau de Bord des Emprunts</h1>
+        <p class="text-gray-400 text-sm mt-1">Gérer les emprunts et les retours de livres</p>
     </div>
-    <a href="{{ route('emprunts.create') }}" class="btn-primary">
-        <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5">
+    <a href="{{ route('emprunts.create') }}" class="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-lg text-sm font-semibold text-white bg-gradient-to-r from-indigo-500 to-indigo-600 hover:from-indigo-600 hover:to-indigo-700 shadow shadow-indigo-500/20 transform hover:-translate-y-0.5 transition-all duration-200 cursor-pointer">
+        <svg class="w-4.5 h-4.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5">
             <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
         </svg>
         Nouvel Emprunt
     </a>
 </div>
 
-<div class="glass-card">
-    <div class="table-container">
-        @if($emprunts->count() > 0)
-            <table>
+<div class="glass-card rounded-2xl p-6 relative overflow-hidden shadow-2xl">
+    <div class="absolute top-0 left-0 right-0 h-[3px] bg-gradient-to-r from-indigo-500 to-teal-500"></div>
+    
+    @if($emprunts->count() > 0)
+        <div class="overflow-x-auto">
+            <table class="w-full text-left text-sm border-collapse">
                 <thead>
-                    <tr>
-                        <th>ID</th>
-                        <th>Livre</th>
-                        <th>Membre</th>
-                        <th>Date d'Emprunt</th>
-                        <th>Date de Retour Prévue</th>
-                        <th>Statut</th>
+                    <tr class="border-b border-white/10">
+                        <th class="pb-4 text-gray-400 font-semibold uppercase text-xs tracking-wider">ID</th>
+                        <th class="pb-4 text-gray-400 font-semibold uppercase text-xs tracking-wider">Livre</th>
+                        <th class="pb-4 text-gray-400 font-semibold uppercase text-xs tracking-wider">Membre</th>
+                        <th class="pb-4 text-gray-400 font-semibold uppercase text-xs tracking-wider">Date d'Emprunt</th>
+                        <th class="pb-4 text-gray-400 font-semibold uppercase text-xs tracking-wider">Date de Retour Prévue</th>
+                        <th class="pb-4 text-gray-400 font-semibold uppercase text-xs tracking-wider">Statut</th>
                     </tr>
                 </thead>
-                <tbody>
+                <tbody class="divide-y divide-white/5">
                     @foreach($emprunts as $emprunt)
-                        <tr>
-                            <td style="font-weight: 700; color: var(--primary);">#{{ $emprunt->id }}</td>
-                            <td style="font-weight: 600;">{{ $emprunt->livre->titre }}</td>
-                            <td>{{ $emprunt->membre->prenom }} {{ $emprunt->membre->nom }}</td>
-                            <td>{{ \Carbon\Carbon::parse($emprunt->date_emprunt)->format('d/m/Y') }}</td>
-                            <td>{{ \Carbon\Carbon::parse($emprunt->date_retour_prevue)->format('d/m/Y') }}</td>
-                            <td>
-                                @if($emprunt->statut === 'En cours')
-                                    <span class="badge badge-pending">En cours</span>
+                        <tr class="hover:bg-white/[0.02] transition-colors duration-150">
+                            <td class="py-4 font-bold text-indigo-400">#{{ $emprunt->id }}</td>
+                            <td class="py-4 font-semibold text-white">{{ $emprunt->livre->titre ?? 'Livre inconnu' }}</td>
+                            <td class="py-4 text-gray-200">{{ $emprunt->user->name ?? 'Membre inconnu' }}</td>
+                            <td class="py-4 text-gray-300">{{ \Carbon\Carbon::parse($emprunt->date_emprunt)->format('d/m/Y') }}</td>
+                            <td class="py-4 text-gray-300">{{ \Carbon\Carbon::parse($emprunt->date_retour_prevue)->format('d/m/Y') }}</td>
+                            <td class="py-4">
+                                @if($emprunt->statut === 'En cours' || $emprunt->statut === 'En attente')
+                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-amber-500/10 text-amber-400 border border-amber-500/20">En cours</span>
                                 @else
-                                    <span class="badge badge-returned">Retourné</span>
+                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">Retourné</span>
                                 @endif
                             </td>
                         </tr>
                     @endforeach
                 </tbody>
             </table>
-        @else
-            <div class="empty-state">
-                <div class="empty-icon">📂</div>
-                <h3>Aucun emprunt trouvé</h3>
-                <p style="margin-top: 0.5rem;">Commencez par ajouter un nouvel emprunt de livre dans le système.</p>
-            </div>
-        @endif
-    </div>
+        </div>
+    @else
+        <div class="text-center py-16">
+            <div class="text-4xl text-indigo-400/40 mb-4">📂</div>
+            <h3 class="text-lg font-bold text-white mb-1">Aucun emprunt trouvé</h3>
+            <p class="text-gray-400 text-sm">Commencez par ajouter un nouvel emprunt de livre dans le système.</p>
+        </div>
+    @endif
 </div>
 @endsection
