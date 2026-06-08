@@ -14,6 +14,7 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware): void {
+        $middleware->trustProxies(at: '*');
         $middleware->append(\App\Http\Middleware\Cors::class);
         $middleware->alias([
             'admin' => \App\Http\Middleware\AdminMiddleware::class,

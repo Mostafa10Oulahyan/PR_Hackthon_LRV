@@ -596,6 +596,7 @@
     </main>
 
     <!-- ── FAQ Section (Placed before Footer) ────────────────────────── -->
+    @if(Route::is('membre.dashboard'))
     <section id="faq-section" class="max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-12 border-t border-slate-200/50">
         <div class="mb-8">
             <span class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-indigo-500/10 border border-indigo-500/20 text-indigo-600 text-xs font-semibold uppercase tracking-wider mb-3">
@@ -830,6 +831,7 @@
             </div>
         </div>
     </footer>
+    @endif
 
     @auth
         <!-- Preloaded Audio Elements for Instant Playback -->
