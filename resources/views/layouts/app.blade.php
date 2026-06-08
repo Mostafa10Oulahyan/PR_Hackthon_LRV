@@ -161,7 +161,8 @@
             background-clip: text !important;
             color: transparent !important;
         }
-        body:not(.dark-theme) .bg-gradient-to-r.from-white.to-indigo-300 {
+        body:not(.dark-theme) .bg-gradient-to-r.from-white.to-indigo-300,
+        body:not(.dark-theme) .bg-gradient-to-r.from-white.to-indigo-200 {
             background-image: linear-gradient(to right, #1e1b4b, #4f46e5) !important;
             -webkit-background-clip: text !important;
             background-clip: text !important;
@@ -191,6 +192,10 @@
         body:not(.dark-theme) textarea {
             background-color: #ffffff !important;
             border: 1px solid #cbd5e1 !important;
+            color: #0f172a !important;
+        }
+        body:not(.dark-theme) select option {
+            background-color: #ffffff !important;
             color: #0f172a !important;
         }
         body:not(.dark-theme) input[type="text"]:focus,
@@ -261,6 +266,10 @@
         body.dark-theme textarea {
             background-color: #0d1423 !important;
             border-color: rgba(255, 255, 255, 0.1) !important;
+            color: #ffffff !important;
+        }
+        body.dark-theme select option {
+            background-color: #0d1423 !important;
             color: #ffffff !important;
         }
 

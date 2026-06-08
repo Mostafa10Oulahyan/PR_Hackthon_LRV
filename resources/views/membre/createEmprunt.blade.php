@@ -41,8 +41,8 @@
 
             <div>
                 <label for="id_livre" class="block text-sm font-medium text-gray-400 mb-1.5">Sélectionner le livre</label>
-                <select id="id_livre" name="id_livre" class="w-full px-4 py-2.5 rounded-lg bg-[#0d1423] border border-white/10 text-white focus:outline-none focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/15 transition duration-200" required>
-                    <option value="" disabled selected class="bg-[#0b0f19] text-gray-500">-- Choisir un livre --</option>
+                <select id="id_livre" name="id_livre" class="w-full px-4 py-2.5 rounded-lg bg-white dark:bg-[#0d1423] border border-gray-300 dark:border-white/10 text-slate-900 dark:text-white focus:outline-none focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/15 transition duration-200" required>
+                    <option value="" disabled selected class="bg-white dark:bg-[#0b0f19] text-gray-500">-- Choisir un livre --</option>
                     @foreach($livres as $livre)
                         <option value="{{ $livre->id }}"
                             data-duration="{{ $livre->duration_borrow }}"
@@ -50,7 +50,7 @@
                             data-isbn="{{ $livre->isbn }}"
                             data-stock="{{ $livre->nombre_exemplaires }}"
                             data-cover="{{ asset($livre->image ?? 'images/book_cover.png') }}"
-                            class="bg-[#0b0f19] text-white"
+                            class="bg-white dark:bg-[#0b0f19] text-slate-900 dark:text-white"
                             {{ (old('id_livre') == $livre->id || ($selectedLivre && $selectedLivre->id == $livre->id)) ? 'selected' : '' }}>
                             {{ $livre->titre }} ({{ $livre->nombre_exemplaires }} ex. dispo — {{ $livre->duration_borrow }} j.)
                         </option>

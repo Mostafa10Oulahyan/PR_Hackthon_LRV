@@ -112,4 +112,24 @@ class ApiController extends Controller
             ], 400);
         }
     }
+
+    /**
+     * Return list of all members from database.
+     */
+    public function getMembres()
+    {
+        $users = \App\Models\User::where('role', 'membre')->get();
+        
+        $membres = $users->map(function ($user) {
+            $parts = explode(' ', $user->name ?? '', 2);
+            return [
+                'id' => $user->id - 1,
+                'nom' => $parts[1] ?? ($user->name ?? ''),
+                'prenom' => $parts[0] ?? '',
+                'email' => $user->email,
+            ];
+        });
+
+        return response()->json($membres, 200);
+    }
 }

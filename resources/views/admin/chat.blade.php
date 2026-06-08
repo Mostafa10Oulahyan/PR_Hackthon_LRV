@@ -84,15 +84,17 @@
         window.addEventListener('unreadCountUpdated', (e) => {
             const breakdown = e.detail.breakdown || {};
             @foreach($users as $user)
-                const userId = {{ $user->id }};
-                const badge = document.getElementById(`unread-badge-${userId}`);
-                if (badge) {
-                    const count = breakdown[userId] || 0;
-                    if (count > 0 && activeUserId !== userId) {
-                        badge.innerText = count;
-                        badge.classList.remove('hidden');
-                    } else {
-                        badge.classList.add('hidden');
+                {
+                    const userId = {{ $user->id }};
+                    const badge = document.getElementById(`unread-badge-${userId}`);
+                    if (badge) {
+                        const count = breakdown[userId] || 0;
+                        if (count > 0 && activeUserId !== userId) {
+                            badge.innerText = count;
+                            badge.classList.remove('hidden');
+                        } else {
+                            badge.classList.add('hidden');
+                        }
                     }
                 }
             @endforeach
