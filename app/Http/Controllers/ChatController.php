@@ -65,8 +65,12 @@ class ChatController extends Controller
             'message' => $request->message,
         ]);
 
-        // Broadcast the event
-        broadcast(new MessageSent($msg))->toOthers();
+        // Broadcast the event with fallback for Vercel/serverless environments
+        try {
+            broadcast(new MessageSent($msg))->toOthers();
+        } catch (\Exception $e) {
+            \Illuminate\Support\Facades\Log::warning('WebSocket broadcast failed: ' . $e->getMessage());
+        }
 
 
 
