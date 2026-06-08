@@ -21,8 +21,15 @@ class MembreController extends Controller
         $empruntsEnCours = Emprunt::where('id_user', $user->id)->whereIn('statut', ['En cours', 'Accepté'])->count();
         $empruntsEnAttente = Emprunt::where('id_user', $user->id)->where('statut', 'En attente')->count();
 
+        // Gamification and favorites content
+        $leaderboard = User::where('role', 'membre')->orderBy('points', 'desc')->take(5)->get();
+        $favoris = $user->favoris()->get();
+        $historiqueEmprunts = Emprunt::with('livre')->where('id_user', $user->id)->orderBy('id', 'desc')->get();
+        $userFavorisIds = $user->favoris()->pluck('livres.id')->toArray();
+
         return view('membre.dashboard', compact(
-            'user', 'mesEmprunts', 'livresDisponibles', 'totalEmprunts', 'empruntsEnCours', 'empruntsEnAttente'
+            'user', 'mesEmprunts', 'livresDisponibles', 'totalEmprunts', 'empruntsEnCours', 'empruntsEnAttente',
+            'leaderboard', 'favoris', 'historiqueEmprunts', 'userFavorisIds'
         ));
     }
 
@@ -31,7 +38,25 @@ class MembreController extends Controller
         $livres = Livre::with(['emprunts' => function ($q) {
             $q->whereIn('statut', ['Accepté', 'En cours'])->orderBy('date_retour_prevue', 'asc');
         }])->get();
-        return view('membre.livres', compact('livres'));
+        
+        $userFavorisIds = Auth::user() ? Auth::user()->favoris()->pluck('livres.id')->toArray() : [];
+        
+        return view('membre.livres', compact('livres', 'userFavorisIds'));
+    }
+
+    public function toggleFavorite($id)
+    {
+        $user = Auth::user();
+        $livre = Livre::findOrFail($id);
+        
+        $isFavorite = $user->favoris()->toggle($id);
+        $attached = count($isFavorite['attached']) > 0;
+        
+        return response()->json([
+            'status' => 'success',
+            'attached' => $attached,
+            'message' => $attached ? 'Livre ajouté aux favoris' : 'Livre retiré des favoris'
+        ]);
     }
 
     public function createEmprunt(Request $request)

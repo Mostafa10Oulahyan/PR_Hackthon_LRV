@@ -22,11 +22,21 @@
         </div>
     @else
         @foreach($livres as $livre)
+            @php
+                $isFav = in_array($livre->id, $userFavorisIds);
+            @endphp
             <div class="book-card glass-card rounded-2xl p-5 flex flex-col justify-between hover:-translate-y-1 hover:border-indigo-500/30 hover:shadow-indigo-500/5 transition-all duration-300 relative group" data-title="{{ strtolower($livre->titre) }}" data-isbn="{{ strtolower($livre->isbn) }}">
                 <div class="absolute top-0 left-0 right-0 h-[2px] bg-indigo-500/10 group-hover:bg-indigo-500/30 transition-colors duration-300"></div>
                 <div>
                     <div class="w-full aspect-[4/3] rounded-xl overflow-hidden mb-4 bg-white/5 border border-white/10 relative">
                         <img src="{{ asset($livre->image ?? 'images/book_cover.png') }}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" alt="{{ $livre->titre }}">
+                        
+                        <!-- Floating Favorite Button -->
+                        <button onclick="toggleFavoriteLivre({{ $livre->id }}, this)" class="absolute top-3.5 right-3.5 p-2 rounded-xl bg-black/40 hover:bg-black/60 text-gray-400 hover:text-red-500 border border-white/5 transition-all duration-200 cursor-pointer z-10 shadow-md">
+                            <svg class="w-4 h-4 {{ $isFav ? 'fill-red-500 text-red-500' : 'text-gray-450' }}" fill="{{ $isFav ? 'currentColor' : 'none' }}" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"></path>
+                            </svg>
+                        </button>
                     </div>
                     <h3 class="font-outfit font-bold text-lg text-white mb-1.5 group-hover:text-indigo-400 transition-colors duration-200">{{ $livre->titre }}</h3>
                     <div class="flex flex-col gap-1 mb-6">
@@ -141,6 +151,34 @@
     
     function hideAvailabilityModal() {
         document.getElementById('availabilityModal').classList.add('hidden');
+    }
+
+    // Toggle favorite AJAX helper
+    async function toggleFavoriteLivre(bookId, btnElement) {
+        try {
+            const res = await fetch(`/membre/favoris/toggle/${bookId}`, {
+                method: 'POST',
+                headers: {
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                    'Content-Type': 'application/json'
+                }
+            });
+            const data = await res.json();
+            if (data.status === 'success') {
+                const svg = btnElement.querySelector('svg');
+                if (data.attached) {
+                    svg.classList.remove('text-gray-450');
+                    svg.classList.add('fill-red-500', 'text-red-500');
+                    svg.setAttribute('fill', 'currentColor');
+                } else {
+                    svg.classList.remove('fill-red-500', 'text-red-500');
+                    svg.classList.add('text-gray-450');
+                    svg.setAttribute('fill', 'none');
+                }
+            }
+        } catch (e) {
+            console.error("Favorite toggle failed:", e);
+        }
     }
 </script>
 @endsection

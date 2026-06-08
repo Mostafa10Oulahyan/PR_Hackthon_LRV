@@ -8,7 +8,7 @@
         <!-- Top decorative border line -->
         <div class="absolute top-0 left-0 right-0 h-[3px] bg-gradient-to-r from-indigo-500 to-teal-500"></div>
 
-        <img src="{{ asset('images/Logo.png') }}" alt="Logo" class="h-16 w-auto mx-auto mb-6 filter drop-shadow-[0_0_10px_rgba(99,102,241,0.5)]">
+        <img src="{{ asset('images/Logo_large.png') }}" alt="Logo" class="h-12 w-auto mx-auto mb-6 filter drop-shadow-[0_0_10px_rgba(99,102,241,0.5)]">
         <h2 class="text-2xl font-outfit font-bold text-center mb-8 bg-gradient-to-r from-white to-indigo-200 bg-clip-text text-transparent">Accéder à votre compte</h2>
         
         <form action="{{ route('login') }}" method="POST" class="space-y-5">

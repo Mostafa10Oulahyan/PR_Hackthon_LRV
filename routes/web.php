@@ -43,6 +43,8 @@ Route::middleware(['auth', 'admin'])->group(function () {
     Route::post('/admin/emprunts/{id}/delete', [AdminController::class, 'deleteEmprunt'])->name('admin.emprunts.delete');
     Route::get('/admin/livres/create', [AdminController::class, 'createLivre'])->name('admin.livres.create');
     Route::post('/admin/livres', [AdminController::class, 'storeLivre'])->name('admin.livres.store');
+    Route::get('/admin/livres/{id}/edit', [AdminController::class, 'editLivre'])->name('admin.livres.edit');
+    Route::post('/admin/livres/{id}/update', [AdminController::class, 'updateLivre'])->name('admin.livres.update');
     Route::get('/admin/chat', [\App\Http\Controllers\ChatController::class, 'adminChat'])->name('admin.chat');
 });
 
@@ -55,6 +57,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/membre/mes-emprunts', [MembreController::class, 'mesEmprunts'])->name('membre.mesEmprunts');
     Route::get('/membre/profil', [MembreController::class, 'profil'])->name('membre.profil');
     Route::post('/membre/profil/avatar', [MembreController::class, 'updateAvatar'])->name('membre.profil.update_avatar');
+    Route::post('/membre/favoris/toggle/{id}', [MembreController::class, 'toggleFavorite'])->name('membre.favoris.toggle');
     Route::get('/membre/chat', [\App\Http\Controllers\ChatController::class, 'membreChat'])->name('membre.chat');
     
     // Chat endpoints

@@ -24,4 +24,9 @@ class Livre extends Model
     {
         return $this->hasMany(Emprunt::class, 'id_livre');
     }
+
+    public function favoritedBy()
+    {
+        return $this->belongsToMany(User::class, 'favoris', 'livre_id', 'user_id')->withTimestamps();
+    }
 }

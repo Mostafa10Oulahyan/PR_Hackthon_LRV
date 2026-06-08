@@ -17,11 +17,43 @@ class AdminController extends Controller
         $totalMembres = User::where('role', 'membre')->count();
         $empruntsEnAttente = Emprunt::where('statut', 'En attente')->count();
         $empruntsEnCours = Emprunt::where('statut', 'En cours')->orWhere('statut', 'Accepté')->count();
+
+        // Advanced metrics
+        $livresDisponiblesExemplaires = Livre::sum('nombre_exemplaires');
+        $livresEmpruntesExemplaires = Emprunt::whereIn('statut', ['Accepté', 'En cours'])->count();
+
+        $topLivres = Livre::withCount('emprunts')
+            ->orderBy('emprunts_count', 'desc')
+            ->take(10)
+            ->get();
+
+        $empruntsParMois = Emprunt::selectRaw('MONTH(date_emprunt) as mois, COUNT(*) as total')
+            ->whereYear('date_emprunt', date('Y'))
+            ->whereIn('statut', ['Accepté', 'En cours'])
+            ->groupBy('mois')
+            ->orderBy('mois')
+            ->get()
+            ->pluck('total', 'mois')
+            ->all();
+
+        $statsMois = [];
+        $nomsMois = ['Jan', 'Fév', 'Mar', 'Avr', 'Mai', 'Jui', 'Jut', 'Aoû', 'Sep', 'Oct', 'Nov', 'Déc'];
+        for ($i = 1; $i <= 12; $i++) {
+            $statsMois[$nomsMois[$i - 1]] = $empruntsParMois[$i] ?? 0;
+        }
+
+        $leaderboard = User::where('role', 'membre')
+            ->with('emprunts')
+            ->orderBy('points', 'desc')
+            ->get();
+
         $livres = Livre::latest()->take(5)->get();
         $recentEmprunts = Emprunt::with(['livre', 'user'])->latest()->take(5)->get();
 
         return view('admin.dashboard', compact(
-            'totalLivres', 'totalMembres', 'empruntsEnAttente', 'empruntsEnCours', 'livres', 'recentEmprunts'
+            'totalLivres', 'totalMembres', 'empruntsEnAttente', 'empruntsEnCours',
+            'livresDisponiblesExemplaires', 'livresEmpruntesExemplaires',
+            'topLivres', 'statsMois', 'leaderboard', 'livres', 'recentEmprunts'
         ));
     }
 
@@ -45,16 +77,22 @@ class AdminController extends Controller
             $livre->save();
         }
 
+        // Award +10 points to user
+        $user = User::find($emprunt->id_user);
+        if ($user) {
+            $user->increment('points', 10);
+        }
+
         // Send notification to the member
         $this->sendEmpruntNotification(
             $emprunt->id_user,
             'emprunt_accepted',
             'Emprunt Accepté ✅',
-            'Votre demande d\'emprunt pour "' . ($livre->titre ?? 'Livre') . '" a été acceptée ! Vous pouvez récupérer le livre.',
+            'Votre demande d\'emprunt pour "' . ($livre->titre ?? 'Livre') . '" a été acceptée ! Vous pouvez récupérer le livre. Vous avez gagné +10 points de fidélité ! 🌟',
             'success'
         );
 
-        return redirect()->route('admin.emprunts')->with('success', 'Emprunt accepté avec succès.');
+        return redirect()->route('admin.emprunts')->with('success', 'Emprunt accepté avec succès et points accordés.');
     }
 
     public function refuseEmprunt($id)
@@ -233,5 +271,44 @@ class AdminController extends Controller
         } catch (\Exception $e) {
             \Illuminate\Support\Facades\Log::error('Notification broadcast error: ' . $e->getMessage());
         }
+    }
+
+    public function editLivre($id)
+    {
+        $livre = Livre::findOrFail($id);
+        return view('admin.editLivre', compact('livre'));
+    }
+
+    public function updateLivre(Request $request, $id)
+    {
+        $request->validate([
+            'titre' => 'required|string|max:255',
+            'isbn' => 'required|string|max:50',
+            'nombre_exemplaires' => 'required|integer|min:0',
+            'duration_borrow' => 'required|integer|min:1',
+            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg,webp|max:4096',
+        ]);
+
+        $livre = Livre::findOrFail($id);
+
+        $data = [
+            'titre' => $request->titre,
+            'isbn' => $request->isbn,
+            'nombre_exemplaires' => $request->nombre_exemplaires,
+            'duration_borrow' => $request->duration_borrow,
+        ];
+
+        if ($request->hasFile('image')) {
+            $uploadedPath = $this->uploadToCloudinary($request->file('image'));
+            if ($uploadedPath) {
+                $data['image'] = $uploadedPath;
+            }
+        }
+
+        $data['statut'] = $request->nombre_exemplaires > 0 ? 'Disponible' : 'Indisponible';
+
+        $livre->update($data);
+
+        return redirect()->route('admin.dashboard')->with('success', 'Livre mis à jour avec succès.');
     }
 }
